@@ -26,7 +26,8 @@ body {
     180deg,
     #102e26 0,
     #1d4939 360px,
-    #eee5d5 360px
+    #eee5d5 360px,
+    #eee5d5 100%
   );
   color: #302b25;
   min-height: 100vh;
@@ -112,6 +113,7 @@ button {
 
 button:disabled {
   opacity: .6;
+  cursor: wait;
 }
 
 .status {
@@ -146,6 +148,7 @@ button:disabled {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  gap: 10px;
 }
 
 .count {
@@ -154,6 +157,27 @@ button:disabled {
   background: #eee4d3;
   border-radius: 30px;
   padding: 8px 11px;
+  white-space: nowrap;
+}
+
+/* Przycisk ręcznego odświeżania */
+.refresh-btn {
+  width: auto;
+  margin: 0 0 16px 0;
+  padding: 10px 16px;
+  background: #245440;
+  box-shadow: none;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+.refresh-btn:active {
+  transform: scale(0.97);
+}
+
+.refresh-btn:disabled {
+  opacity: .6;
+  cursor: wait;
 }
 
 .empty {
@@ -258,6 +282,15 @@ style="border-top:1px solid #e3d8c6">
 <span class="count" id="count">0 wpisów</span>
 </div>
 
+<!-- Ręczne odświeżanie listy -->
+<button
+  type="button"
+  class="refresh-btn"
+  id="refreshBtn"
+  onclick="manualRefresh()">
+  🔄 Odśwież listę
+</button>
+
 <div id="entries">
   <div class="empty">Ładowanie listy...</div>
 </div>
@@ -280,7 +313,7 @@ Lista odświeża się automatycznie co 30 sekund.
 
 <script>
 
-// WKLEJ TUTAJ ADRES GOOGLE APPS SCRIPT
+// Adres Google Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbxzKUxGhehmWS5ceFnh0tkN9Uz_i_dyVzrOvmb28BBmR9M7ycqvHYF-WdN45Y4n504l/exec";
 
 const form = document.getElementById("entryForm");
@@ -289,11 +322,23 @@ const formStatus = document.getElementById("formStatus");
 const entriesEl = document.getElementById("entries");
 const countEl = document.getElementById("count");
 const listStatus = document.getElementById("listStatus");
+const refreshBtn = document.getElementById("refreshBtn");
+
+let refreshTimeout = null;
 
 function apiReady() {
   return API_URL.startsWith(
     "https://script.google.com/macros/s/"
   ) && !API_URL.includes("WKLEJ_TUTAJ");
+}
+
+// Przywracanie przycisku
+function finishRefresh() {
+
+  clearTimeout(refreshTimeout);
+
+  refreshBtn.disabled = false;
+  refreshBtn.textContent = "🔄 Odśwież listę";
 }
 
 // Pobieranie listy
@@ -302,10 +347,13 @@ function loadEntries() {
   if (!apiReady()) {
     entriesEl.textContent =
       "Administrator musi najpierw podłączyć Google Sheets.";
+
+    finishRefresh();
     return;
   }
 
   const old = document.getElementById("jsonp-loader");
+
   if (old) old.remove();
 
   window.receiveWigiliaEntries = function(data) {
@@ -313,10 +361,17 @@ function loadEntries() {
     if (!data || !data.ok) {
       listStatus.textContent =
         "Nie udało się pobrać listy.";
+
+      finishRefresh();
       return;
     }
 
     renderEntries(data.entries || []);
+
+    listStatus.textContent =
+      "Lista została zaktualizowana.";
+
+    finishRefresh();
   };
 
   const script = document.createElement("script");
@@ -329,11 +384,39 @@ function loadEntries() {
     Date.now();
 
   script.onerror = function() {
+
     listStatus.textContent =
       "Problem z połączeniem z Google Sheets.";
+
+    finishRefresh();
   };
 
   document.body.appendChild(script);
+
+  // Zabezpieczenie, jeśli serwer nie odpowie
+  refreshTimeout = setTimeout(() => {
+
+    listStatus.textContent =
+      "Przekroczono czas oczekiwania. Spróbuj ponownie.";
+
+    finishRefresh();
+
+    script.remove();
+
+  }, 12000);
+}
+
+// Ręczne odświeżanie
+function manualRefresh() {
+
+  if (refreshBtn.disabled) return;
+
+  refreshBtn.disabled = true;
+  refreshBtn.textContent = "⏳ Odświeżanie...";
+
+  listStatus.textContent = "";
+
+  loadEntries();
 }
 
 // Wyświetlanie wpisów
@@ -376,7 +459,6 @@ function renderEntries(entries) {
 
   });
 
-  listStatus.textContent = "";
 }
 
 // Dodawanie wpisów
@@ -421,9 +503,9 @@ form.addEventListener("submit", async function(event) {
     form.reset();
 
     formStatus.textContent =
-      "Dziękujemy! Wpis został wysłany.";
+      "Dziękuje za wpis :).";
 
-    setTimeout(loadEntries, 1800);
+    setTimeout(manualRefresh, 1800);
 
   } catch (error) {
 
