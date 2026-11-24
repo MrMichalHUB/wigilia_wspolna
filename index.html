@@ -1,0 +1,451 @@
+
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Wspólna Wigilia 🎄</title>
+
+<style>
+:root {
+  --green: #173d32;
+  --red: #a52d32;
+  --gold: #d6b875;
+  --cream: #f8f2e7;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Georgia, serif;
+  background: linear-gradient(
+    180deg,
+    #102e26 0,
+    #1d4939 360px,
+    #eee5d5 360px
+  );
+  color: #302b25;
+  min-height: 100vh;
+}
+
+.container {
+  width: min(760px, calc(100% - 28px));
+  margin: 28px auto 50px;
+}
+
+header {
+  text-align: center;
+  color: #fff4dc;
+  padding: 22px 14px 28px;
+}
+
+header h1 {
+  font-size: clamp(34px, 8vw, 54px);
+  font-weight: 500;
+  margin: 10px 0;
+}
+
+header p {
+  font-family: Arial, sans-serif;
+  color: #e6e8dc;
+  line-height: 1.6;
+}
+
+.ornament {
+  color: var(--gold);
+  font-size: 27px;
+  letter-spacing: 10px;
+}
+
+main {
+  background: var(--cream);
+  border-radius: 22px;
+  overflow: hidden;
+  box-shadow: 0 18px 55px #071b1640;
+}
+
+.section {
+  padding: 25px clamp(18px, 5vw, 36px);
+}
+
+h2 {
+  color: var(--green);
+  font-size: 25px;
+  font-weight: 500;
+}
+
+label {
+  display: block;
+  font: 600 13px Arial, sans-serif;
+  margin: 15px 0 7px;
+}
+
+input, textarea {
+  width: 100%;
+  border: 1px solid #d9cdb9;
+  border-radius: 11px;
+  padding: 14px;
+  background: #fffdf9;
+  font: 16px Arial, sans-serif;
+}
+
+textarea {
+  min-height: 88px;
+  resize: vertical;
+}
+
+button {
+  width: 100%;
+  border: 0;
+  border-radius: 11px;
+  background: var(--red);
+  color: white;
+  padding: 15px;
+  margin-top: 18px;
+  font: bold 15px Arial, sans-serif;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: .6;
+}
+
+.status {
+  font: 13px Arial, sans-serif;
+  margin-top: 12px;
+  color: var(--green);
+}
+
+.entry {
+  background: #fffdf9;
+  border: 1px solid #e6dccb;
+  border-radius: 13px;
+  padding: 14px 16px;
+  margin-bottom: 10px;
+}
+
+.entry strong {
+  display: block;
+  color: var(--green);
+  font: bold 15px Arial, sans-serif;
+  margin-bottom: 6px;
+}
+
+.entry p {
+  margin: 0;
+  font: 14px/1.55 Arial, sans-serif;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.list-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.count {
+  font: 12px Arial, sans-serif;
+  color: #756a5a;
+  background: #eee4d3;
+  border-radius: 30px;
+  padding: 8px 11px;
+}
+
+.empty {
+  font: 14px Arial, sans-serif;
+  color: #796f60;
+  background: #fffdf9;
+  padding: 18px;
+  border-radius: 13px;
+  text-align: center;
+}
+
+footer {
+  text-align: center;
+  color: #f0dfba;
+  font: 12px Arial, sans-serif;
+  padding: 18px;
+}
+
+.hp {
+  position: absolute;
+  left: -5000px;
+}
+
+@media (min-width: 620px) {
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    gap: 16px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<header>
+  <div>RAZEM TWORZYMY ŚWIĄTECZNY STÓŁ</div>
+  <div class="ornament">✦ ❄ ✦</div>
+
+  <h1>Wspólna Wigilia 🎄</h1>
+
+  <p>
+    Niech każdy dorzuci coś od siebie.<br>
+    Wpisz, co przyniesiesz, i sprawdź naszą listę.
+  </p>
+</header>
+
+<main>
+
+<section class="section">
+
+<h2>🎁 Dopisz się do listy</h2>
+
+<form id="entryForm">
+
+<div class="form-grid">
+
+<div>
+<label for="who">Kto?</label>
+<input
+  id="who"
+  maxlength="80"
+  placeholder="Imię i nazwisko"
+  required
+>
+</div>
+
+<div>
+<label for="what">Co przynosi?</label>
+<textarea
+  id="what"
+  maxlength="500"
+  placeholder="Np. pierogi, barszcz, ciasto..."
+  required
+></textarea>
+</div>
+
+</div>
+
+<div class="hp">
+<label for="website">Nie wypełniaj</label>
+<input id="website" tabindex="-1">
+</div>
+
+<button id="submitBtn" type="submit">
+✦ Dodaj do świątecznej listy
+</button>
+
+<div class="status" id="formStatus"></div>
+
+</form>
+
+</section>
+
+<section class="section"
+style="border-top:1px solid #e3d8c6">
+
+<div class="list-head">
+<h2>📜 Nasza lista</h2>
+<span class="count" id="count">0 wpisów</span>
+</div>
+
+<div id="entries">
+  <div class="empty">Ładowanie listy...</div>
+</div>
+
+<p style="font:12px Arial;color:#796f60">
+Lista odświeża się automatycznie co 30 sekund.
+</p>
+
+<div class="status" id="listStatus"></div>
+
+</section>
+
+</main>
+
+<footer>
+✧ Wesołych Świąt! ✧
+</footer>
+
+</div>
+
+<script>
+
+// WKLEJ TUTAJ ADRES GOOGLE APPS SCRIPT
+const API_URL = "https://script.google.com/macros/s/AKfycbxzKUxGhehmWS5ceFnh0tkN9Uz_i_dyVzrOvmb28BBmR9M7ycqvHYF-WdN45Y4n504l/exec";
+
+const form = document.getElementById("entryForm");
+const submitBtn = document.getElementById("submitBtn");
+const formStatus = document.getElementById("formStatus");
+const entriesEl = document.getElementById("entries");
+const countEl = document.getElementById("count");
+const listStatus = document.getElementById("listStatus");
+
+function apiReady() {
+  return API_URL.startsWith(
+    "https://script.google.com/macros/s/"
+  ) && !API_URL.includes("WKLEJ_TUTAJ");
+}
+
+// Pobieranie listy
+function loadEntries() {
+
+  if (!apiReady()) {
+    entriesEl.textContent =
+      "Administrator musi najpierw podłączyć Google Sheets.";
+    return;
+  }
+
+  const old = document.getElementById("jsonp-loader");
+  if (old) old.remove();
+
+  window.receiveWigiliaEntries = function(data) {
+
+    if (!data || !data.ok) {
+      listStatus.textContent =
+        "Nie udało się pobrać listy.";
+      return;
+    }
+
+    renderEntries(data.entries || []);
+  };
+
+  const script = document.createElement("script");
+
+  script.id = "jsonp-loader";
+
+  script.src =
+    API_URL +
+    "?callback=receiveWigiliaEntries&t=" +
+    Date.now();
+
+  script.onerror = function() {
+    listStatus.textContent =
+      "Problem z połączeniem z Google Sheets.";
+  };
+
+  document.body.appendChild(script);
+}
+
+// Wyświetlanie wpisów
+function renderEntries(entries) {
+
+  entriesEl.replaceChildren();
+
+  countEl.textContent =
+    entries.length +
+    (entries.length === 1
+      ? " wpis"
+      : (entries.length >= 2 && entries.length <= 4
+        ? " wpisy"
+        : " wpisów"));
+
+  if (entries.length === 0) {
+
+    const empty = document.createElement("div");
+    empty.className = "empty";
+    empty.textContent =
+      "Lista jest jeszcze pusta. Dodaj pierwszy wpis!";
+
+    entriesEl.appendChild(empty);
+    return;
+  }
+
+  entries.forEach(item => {
+
+    const card = document.createElement("article");
+    card.className = "entry";
+
+    const name = document.createElement("strong");
+    name.textContent = item.who;
+
+    const what = document.createElement("p");
+    what.textContent = item.what;
+
+    card.append(name, what);
+    entriesEl.appendChild(card);
+
+  });
+
+  listStatus.textContent = "";
+}
+
+// Dodawanie wpisów
+form.addEventListener("submit", async function(event) {
+
+  event.preventDefault();
+
+  if (!apiReady()) {
+    formStatus.textContent =
+      "Najpierw podłącz Google Sheets.";
+    return;
+  }
+
+  const who =
+    document.getElementById("who").value.trim();
+
+  const what =
+    document.getElementById("what").value.trim();
+
+  const website =
+    document.getElementById("website").value;
+
+  if (!who || !what) return;
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = "Zapisywanie...";
+
+  try {
+
+    const body = new URLSearchParams({
+      who: who,
+      what: what,
+      website: website
+    });
+
+    await fetch(API_URL, {
+      method: "POST",
+      mode: "no-cors",
+      body: body
+    });
+
+    form.reset();
+
+    formStatus.textContent =
+      "Dziękujemy! Wpis został wysłany.";
+
+    setTimeout(loadEntries, 1800);
+
+  } catch (error) {
+
+    formStatus.textContent =
+      "Wystąpił problem. Spróbuj ponownie.";
+
+  } finally {
+
+    submitBtn.disabled = false;
+    submitBtn.textContent =
+      "✦ Dodaj do świątecznej listy";
+
+  }
+
+});
+
+// Pierwsze pobranie i automatyczne odświeżanie
+loadEntries();
+
+setInterval(loadEntries, 30000);
+
+</script>
+
+</body>
+</html>
